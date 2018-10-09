@@ -14,14 +14,13 @@ if (package["parcel-plugin-change-file"]) {
     "No config found." +
       "parcel-plugin-change-file in package.json or parcel-plugin-change-file.js"
   );
-  return;
 }
 
 function changeHtml(filePath) {
   fs.readFile(filePath, { encoding: "utf-8" })
     .then(data => {
       if (config && config.html && config.html.length > 0) {
-        for (let i = 0, l = config.html.length; i <= l; i++) {
+        for (let i = 0; i <= config.html.length; i++) {
           const exp = eval(
             `/<!-- ${config.replaceName ||
               "parcel-plugin-change-file"}-${i} -->/g`
@@ -29,6 +28,18 @@ function changeHtml(filePath) {
           data = data.replace(exp, config.html[i]);
         }
       }
+
+      if (config && config.inject && config.inject.length > 0) {
+        const injection_point = data.indexOf("</head>");
+        let injection = "";
+        for (let i = 0; i < config.inject.length; i++)
+          injection += config.inject[i];
+        data =
+          data.slice(0, injection_point) +
+          injection +
+          data.slice(injection_point);
+      }
+
       data = data.replace(/<!--\|/g, "");
       data = data.replace(/\|-->/g, "");
       data = data.replace(/<!--\[/g, "");
@@ -39,19 +50,14 @@ function changeHtml(filePath) {
     .catch(console.error);
 }
 
-async function copyFiles(destination) {
+async function copyFiles(dist_folder) {
   const p = [];
   if (config && config.copy && config.copy.length > 0) {
     for (var i = 0; i < config.copy.length; i++) {
       const el = config.copy[i];
       const source = path.resolve(process.cwd(), el);
-      try {
-        const copying = fs.copy(source, path.join(destination, el));
-        p.push(copying);
-      } catch (e) {
-        console.error("Could not copy:", source);
-        console.error(e);
-      }
+      const destination = path.join(dist_folder, el);
+      p.push(fs.copy(source, destination));
     }
   }
   return Promise.all(p)
