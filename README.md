@@ -1,7 +1,5 @@
 # :ambulance: parcel-plugin-change-file
 
-[中文文档](./README-cn.md)
-
 ## :bulb: How ignore parcel bundler file ?
 
 On Parcel build end, change index.html context, and copy static files in outDir
@@ -12,37 +10,48 @@ On Parcel build end, change index.html context, and copy static files in outDir
 $ yarn add -D parcel-plugin-change-file
 ```
 
-## :bookmark: Feature1: Exegesis index.html
+## :bookmark: Feature 1: Exegesis index.html
 
-Add `<!--[ your-code ]-->`
+- **does not work in build mode w/ minification**
+- Add `<!--[ your-code ]-->`
 
 ```html
 <body>
   <!--[ <script src="lodash.min.js"></script> ]-->
-</bodt>
+</body>
 ```
+
 The lodash.min.js jump to parcel bundler, this build end html:
+
 ```html
 <body>
   <script src="lodash.min.js"></script>
-</bodt>
+</body>
 ```
 
-## :lipstick: Feature2: Replace index.html
+## :lipstick: Feature 2: Replace index.html
 
-Add `<!-- parcel-plugin-change-file-i -->` in index.html
+- Inject a script tag before `</head>`
+- copy config.js into the project root
+
+```js
+module.exports = {
+  inject: ['<script src="/config.js"></script>']
+  copy: ['./config.js']
+};
+```
 
 ```html
-<header>
+<head>
   <title><!-- parcel-plugin-change-file-0 --></title>
-</header>
+<script src="/config.js"></script></head>
 ```
 
 Create `parcel-plugin-change-file.js` in project-dir
 
 ```js
 module.exports = {
-  html: ['Product Name'],
+  html: ["Product Name"]
 };
 ```
 
@@ -60,7 +69,7 @@ Create `parcel-plugin-change-file.js` in project-dir
 
 ```js
 module.exports = {
-  copy: ['src/assets'],
+  copy: ["src/assets"]
 };
 ```
 
@@ -75,17 +84,17 @@ File tree like this:
 ```js
 module.exports = {
   timeout: 30, // setTimeout replace Html file
-  replaceName: 'parcel-plugin-change-file', // default html replaceName
-  html: ['hello'], // change string to html
-  copy: ['src/assets'], // copy files in outDir
+  replaceName: "parcel-plugin-change-file", // default html replaceName
+  html: ["hello"], // change string to html
+  copy: ["src/assets"] // copy files in outDir
+  inject: ["<script src=\"assets/image.jpg\">"] // inject a script tag before </head>
 };
 ```
 
-
-## How did ignore parcel-plugin-change-file feature?
+## Temporarily turn off this plugin?
 
 Add `changeFile=false`
 
-```
+```bash
 $ changeFile=false parcel index.html
 ```
