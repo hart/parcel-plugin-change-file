@@ -1,60 +1,74 @@
-const fs = require('fs-extra');
-const path = require('path');
+const fs = require("fs-extra");
+const path = require("path");
 
-const package = require(path.resolve(process.cwd(), 'package.json'));
+const config_file = path.join(process.cwd(), "parcel-plugin-change-file.js");
+const package = require(path.resolve(process.cwd(), "package.json"));
+
 let config;
-if (package['parcel-plugin-change-file']) {
-  config = package['parcel-plugin-change-file'];
-} else if (fs.existsSync(configFilePath)) {
-  config = require(configFilePath);
+if (package["parcel-plugin-change-file"]) {
+  config = package["parcel-plugin-change-file"];
+} else if (fs.existsSync(config_file)) {
+  config = require(config_file);
 } else {
   console.log(
-    'No find parcel-plugin-change-file in package.json or parcel-plugin-change-file.js',
+    "No config found." +
+      "parcel-plugin-change-file in package.json or parcel-plugin-change-file.js"
   );
   return;
 }
-let isCopyed = false;
 
 function changeHtml(filePath) {
-  let data = fs.readFileSync(filePath, { encoding: 'utf-8' });
-  if (config && config.html && config.html.length > 0) {
-    for (let i = 0, l = config.html.length; i <= l; i++) {
-      const exp = eval(
-        `/<!-- ${config.replaceName || 'parcel-plugin-change-file'}-${i} -->/g`,
-      );
-      data = data.replace(exp, config.html[i]);
-    }
-  }
-  data = data.replace(/<!--\|/g, '');
-  data = data.replace(/\|-->/g, '');
-  data = data.replace(/<!--\[/g, '');
-  data = data.replace(/\]-->/g, '');
-  setTimeout(() => {
-    fs.removeSync(filePath);
-    fs.createFileSync(filePath);
-    fs.writeFileSync(filePath, data);
-  }, config.timeout || 30);
-}
-
-function copyFiles(outPath) {
-  if (config && config.copy && config.copy.length > 0) {
-    for (var i = 0, l = config.copy.length; i < l; i++) {
-      const ele = config.copy[i];
-      const targetPath = path.resolve(process.cwd(), ele);
-      fs.copySync(targetPath, outPath);
-    }
-  }
-}
-
-module.exports = function(bundler) {
-  if (process.env.changeFile != 'false') {
-    bundler.on('bundled', bund => {
-      const bundleDir = path.dirname(bund.name);
-      if (bund.type === 'html') {
-        changeHtml(bund.name);
+  fs.readFile(filePath, { encoding: "utf-8" })
+    .then(data => {
+      if (config && config.html && config.html.length > 0) {
+        for (let i = 0, l = config.html.length; i <= l; i++) {
+          const exp = eval(
+            `/<!-- ${config.replaceName ||
+              "parcel-plugin-change-file"}-${i} -->/g`
+          );
+          data = data.replace(exp, config.html[i]);
+        }
       }
-      if (!isCopyed) {
-        isCopyed = true;
+      data = data.replace(/<!--\|/g, "");
+      data = data.replace(/\|-->/g, "");
+      data = data.replace(/<!--\[/g, "");
+      data = data.replace(/\]-->/g, "");
+      return data;
+    })
+    .then(data => fs.writeFile(filePath, data))
+    .catch(console.error);
+}
+
+async function copyFiles(destination) {
+  const p = [];
+  if (config && config.copy && config.copy.length > 0) {
+    for (var i = 0; i < config.copy.length; i++) {
+      const el = config.copy[i];
+      const source = path.resolve(process.cwd(), el);
+      try {
+        const copying = fs.copy(source, path.join(destination, el));
+        p.push(copying);
+      } catch (e) {
+        console.error("Could not copy:", source);
+        console.error(e);
+      }
+    }
+  }
+  return Promise.all(p)
+    .then(() => (hasCopied = true))
+    .catch(console.error);
+}
+
+let hasCopied = false;
+module.exports = function(bundler) {
+  if (process.env.CHANGE_FILE != "false") {
+    bundler.on("bundled", bundle => {
+      if (bundle.type === "html") {
+        changeHtml(bundle.name);
+      }
+
+      if (!hasCopied) {
+        const bundleDir = path.dirname(bundle.name);
         copyFiles(bundleDir);
       }
     });
