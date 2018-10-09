@@ -1,14 +1,17 @@
 {
-  "name": "parcel-plugin-change-file",
+  "name": "@hart/parcel-plugin-change-file",
   "version": "1.3.0",
-  "description": "",
+  "author": "@walston <nathanielwalston@gmail.com>",
+  "keywords": [
+    "parcel",
+    "plugin"
+  ],
+  "license": "ISC",
+  "description": "copy files directly to /dist for parcel packages.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "fs-extra": "^7.0.0"
   }
