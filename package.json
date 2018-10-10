@@ -1,6 +1,6 @@
 {
   "name": "@hart/parcel-plugin-change-file",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "author": "@walston <nathanielwalston@gmail.com>",
   "keywords": [
     "parcel",
