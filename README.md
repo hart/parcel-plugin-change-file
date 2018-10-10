@@ -7,7 +7,7 @@ On Parcel build end, change index.html context, and copy static files in outDir
 ## :building_construction: Install
 
 ```sh
-$ yarn add -D parcel-plugin-change-file
+$ yarn add -D @hart/parcel-plugin-change-file
 ```
 
 ## :bookmark: Feature 1: Exegesis index.html
