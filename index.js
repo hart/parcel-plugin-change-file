@@ -19,16 +19,6 @@ if (package["parcel-plugin-change-file"]) {
 function changeHtml(filePath) {
   fs.readFile(filePath, { encoding: "utf-8" })
     .then(data => {
-      if (config && config.html && config.html.length > 0) {
-        for (let i = 0; i <= config.html.length; i++) {
-          const exp = eval(
-            `/<!-- ${config.replaceName ||
-              "parcel-plugin-change-file"}-${i} -->/g`
-          );
-          data = data.replace(exp, config.html[i]);
-        }
-      }
-
       if (config && config.inject && config.inject.length > 0) {
         const injection_point = data.indexOf("</head>");
         let injection = "";
@@ -40,10 +30,6 @@ function changeHtml(filePath) {
           data.slice(injection_point);
       }
 
-      data = data.replace(/<!--\|/g, "");
-      data = data.replace(/\|-->/g, "");
-      data = data.replace(/<!--\[/g, "");
-      data = data.replace(/\]-->/g, "");
       return data;
     })
     .then(data => fs.writeFile(filePath, data))

@@ -10,28 +10,9 @@ On Parcel build end, change index.html context, and copy static files in outDir
 $ yarn add -D @hart/parcel-plugin-change-file
 ```
 
-## :bookmark: Feature 1: Exegesis index.html
+## :lipstick: Inject unbundled scripts into document.head
 
-- **does not work in build mode w/ minification**
-- Add `<!--[ your-code ]-->`
-
-```html
-<body>
-  <!--[ <script src="lodash.min.js"></script> ]-->
-</body>
-```
-
-The lodash.min.js jump to parcel bundler, this build end html:
-
-```html
-<body>
-  <script src="lodash.min.js"></script>
-</body>
-```
-
-## :lipstick: Feature 2: Replace index.html
-
-- Inject a script tag before `</head>`
+- Inject script tag(s) just before `</head>`
 - copy config.js into the project root
 
 ```js
@@ -47,23 +28,7 @@ module.exports = {
 <script src="/config.js"></script></head>
 ```
 
-Create `parcel-plugin-change-file.js` in project-dir
-
-```js
-module.exports = {
-  html: ["Product Name"]
-};
-```
-
-parcel build end:
-
-```html
-<header>
-  <title>Product Name</title>
-</header>
-```
-
-## :truck: Feature3: Copy files to outDir
+## :truck: Copy files to dist/
 
 Create `parcel-plugin-change-file.js` in project-dir
 
@@ -73,7 +38,7 @@ module.exports = {
 };
 ```
 
-## :beer: OK, after build, we change static html and files!
+## :beer: After build, change html and copy files!
 
 File tree like this:
 
@@ -93,8 +58,8 @@ module.exports = {
 
 ## Temporarily turn off this plugin?
 
-Add `changeFile=false`
+Add `CHANGE_FILE=false`
 
 ```bash
-$ changeFile=false parcel index.html
+$ CHANGE_FILE=false parcel index.html
 ```
